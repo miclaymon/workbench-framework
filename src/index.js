@@ -10,6 +10,12 @@
 // stores; the host app supplies the app-specific parts (activity definitions,
 // persistence, transports) as parameters. See each module for its contract.
 
+// Workbench instance
+export {
+  Workbench,
+  createWorkbench,
+} from './workbench.js'
+
 // Event emitter
 export {
   createEmitter,

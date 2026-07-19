@@ -25,6 +25,7 @@ in the UI package or the host app, injected through `services` or a parameter.
 
 | Module | Contents |
 |---|---|
+| `workbench.js` | `createWorkbench(options)` / `new Workbench(options)` — the instance a host app creates: ensures activity-surface registration, builds the activity host + facade, creates the plugin host (`workbench.host` / `.facade` / `.plugins`, with a `host.workbench` back-reference). UI packages bind to it (e.g. `@workbench/vue`'s `<WorkbenchApp :workbench>`). |
 | `index.js` | The public surface — a flat re-export of every module below. The app imports **only** from here (`from '@workbench/framework'`). Export names are load-bearing: consumers bind by name, so renames are breaking changes. |
 | `reactivity.js` | The single indirection point for `@vue/reactivity` primitives. Framework code imports reactivity from here, never from `vue`/`@vue/reactivity` directly. |
 | `emitter.js` | `createEmitter()` — tiny synchronous pub/sub with isolated subscriber errors. One per providing activity API + one for the host's app-level events. |
