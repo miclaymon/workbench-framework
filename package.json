@@ -1,0 +1,22 @@
+{
+  "name": "@workbench/framework",
+  "version": "0.1.0",
+  "description": "The Workbench framework — activity host + facade, command/keybinding/hook/menu registries, dynamic view registry, UI model classes, plugin model and host, and the split-grid layout engine. UI-framework-agnostic: built on @vue/reactivity stores only (no components, no renderer).",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": [
+    "src"
+  ],
+  "peerDependencies": {
+    "@vue/reactivity": "^3.5.0"
+  },
+  "keywords": [
+    "workbench",
+    "framework",
+    "plugin-system"
+  ],
+  "license": "MIT"
+}
