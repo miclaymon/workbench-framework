@@ -50,7 +50,25 @@ The framework carries no app specifics. The host app provides:
   `services.callPluginRpc(pluginId, method, params, opts)` if plugins with the
   `server` permission should reach their backends;
 - plugin *delivery* (fetching, integrity verification, module import) — the host
-  hands `createPluginHost` ready `{ manifest, module }` pairs.
+  hands `createPluginHost` ready `{ manifest, module }` pairs;
+- its contract versions, e.g. `createWorkbench({ engines: { sdk: SDK_VERSION } })`.
+  A plugin manifest's `engines` block is checked against these **before** it loads:
+  an unsatisfied range refuses the plugin with a legible error, an engine the host
+  doesn't declare is a warning (forward-compatible). `dependencies` ranges are
+  enforced the same way against the loaded plugin's version. Range matching uses
+  the bundled `satisfies()` (also exported) — `^`, `~`, comparators, AND-sets and
+  `||` alternatives.
+
+## Types
+
+The package ships generated declarations (`types/`, wired through the `exports`
+map), emitted from the source JSDoc:
+
+```bash
+npm run build:types    # runs tsc via npx — nothing is installed into this repo
+```
+
+They are committed; regenerate and commit whenever an exported signature changes.
 
 Used by [Files Workbench](https://github.com/miclaymon/files-workbench); consumed
 there via a local install: `npm install ../../workbench-framework`.
