@@ -1,0 +1,16 @@
+{
+  "//": "Declaration-only build: emits types/ from the JSDoc in src/. Run via `npm run build:types`, which uses npx so this package never grows a node_modules (see AGENTS.md) — an install here would plant a second vue/@vue/reactivity through the file: symlink.",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowJs": true,
+    "checkJs": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationDir": "types",
+    "skipLibCheck": true,
+    "strict": false
+  },
+  "include": ["src/**/*.js"]
+}

@@ -1,5 +1,6 @@
 import { reactive } from '../reactivity.js'
 import { validateManifest } from '../models/plugin/index.js'
+import { satisfies } from '../models/plugin/semver.js'
 import { createPluginApi } from './pluginApi.js'
 
 // ── Plugin host (loader + lifecycle) ──────────────────────────────────────────
@@ -21,7 +22,13 @@ import { createPluginApi } from './pluginApi.js'
 // thrown/rejected activate(), or a bogus disposer is logged and confined to that
 // plugin — peers and the host keep running. `states` tracks each plugin's
 // lifecycle ('loading' | 'active' | 'failed') for a future plugin-manager UI.
-export function createPluginHost({ host, log = () => {} }) {
+//
+// `engines` is the host's declared contract versions, e.g. `{ sdk: '1.0.0' }` — the
+// host supplies them because the framework has no knowledge of the SDK surface a
+// given app publishes. A plugin's `engines` block is checked against them at load;
+// an engine the host doesn't declare is a warning (forward-compatible, like unknown
+// permissions), a declared-but-unsatisfied range refuses the load.
+export function createPluginHost({ host, log = () => {}, engines = {} }) {
   const loaded = reactive(new Map())   // id → { manifest, api, module, dispose }
   const states = reactive(new Map())   // id → 'loading' | 'active' | 'failed'
 
@@ -85,10 +92,37 @@ export function createPluginHost({ host, log = () => {} }) {
       states.set(manifest.id, 'failed')
       throw new Error(`[plugins] "${manifest.id}" entry has no activate(api) export`)
     }
-    for (const depId of Object.keys(manifest.dependencies ?? {})) {
-      if (!loaded.has(depId)) {
+    // Contract compatibility: a plugin built against an incompatible SDK/host would
+    // fail in confusing ways at runtime (missing exports, changed shapes), so refuse
+    // it up front with a legible message.
+    for (const [engine, range] of Object.entries(manifest.engines ?? {})) {
+      const hostVersion = engines[engine]
+      if (hostVersion == null) {
+        log('plugins', `${manifest.id}: requires unknown engine "${engine}" (${range}) — not checked`, null, 'warning')
+        continue
+      }
+      const ok = satisfies(hostVersion, range)
+      if (ok === null) {
+        log('plugins', `${manifest.id}: unparseable engines.${engine} range "${range}" — not checked`, null, 'warning')
+        continue
+      }
+      if (!ok) {
+        states.set(manifest.id, 'failed')
+        throw new Error(`[plugins] "${manifest.id}" requires ${engine} ${range}, host provides ${hostVersion}`)
+      }
+    }
+    for (const [depId, range] of Object.entries(manifest.dependencies ?? {})) {
+      const dep = loaded.get(depId)
+      if (!dep) {
         states.set(manifest.id, 'failed')
         throw new Error(`[plugins] "${manifest.id}" depends on "${depId}", which is not loaded`)
+      }
+      const ok = satisfies(dep.manifest.version, range)
+      if (ok === null) {
+        log('plugins', `${manifest.id}: unparseable dependency range "${depId}": "${range}" — not checked`, null, 'warning')
+      } else if (!ok) {
+        states.set(manifest.id, 'failed')
+        throw new Error(`[plugins] "${manifest.id}" requires "${depId}" ${range}, but ${dep.manifest.version} is loaded`)
       }
     }
 

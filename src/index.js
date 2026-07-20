@@ -158,3 +158,7 @@ export {
   validateManifest,
   grantedPermissions,
 } from './models/plugin/index.js'
+
+// Semver helpers (used for `engines` / `dependencies` range checks; exported so a
+// host can evaluate compatibility itself — e.g. before offering an install).
+export { satisfies, parseVersion, compareVersions } from './models/plugin/semver.js'

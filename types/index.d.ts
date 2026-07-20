@@ -1,0 +1,17 @@
+export { createEmitter } from "./emitter.js";
+export { createCommandRegistry } from "./registries/commandRegistry.js";
+export { createHookRegistry } from "./registries/hookRegistry.js";
+export { useActivityHost } from "./host/activityHost.js";
+export { createPluginApi } from "./plugins/pluginApi.js";
+export { createPluginHost } from "./plugins/pluginHost.js";
+export { Workbench, createWorkbench } from "./workbench.js";
+export { createKeybindingRegistry, formatChord, normalizeChord } from "./registries/keybindingRegistry.js";
+export { registerActivity, unregisterActivity, getModal, listModals, getViewEntry, activityOfView, activityOfTabKind, tabViewIdForKind, tabViewForKind, tabIconDescriptor, getStatusViews, listActivities, listPrimaryViews, getActivity, viewAcceptsSections, viewAllowsDuplicateSections, viewActions, sectionActions, sectionHeadingShown, bubbledSectionActions, viewDataId, sectionDataId, useViewRegistry } from "./registries/viewRegistry.js";
+export { registerIconTheme, unregisterIconTheme, setActiveIconTheme, listIconThemes, resolveIcon, useIconRegistry, activeIconThemeId, isIconThemeAvailable } from "./registries/iconRegistry.js";
+export { registerPreferences, contributedSchemaProperties } from "./registries/preferenceSchema.js";
+export { openLightbox, closeLightbox, useLightbox, lightboxActive } from "./services/lightbox.js";
+export { openPeek, closePeek, usePeek, peekActive } from "./services/peek.js";
+export { isLeaf, isBranch, createLeaf, createBranch, findLeaf, collectLeaves, firstLeaf, leafCount, findParent, findTab, insertLeafBeside, removeLeaf, mergeAll, applyPreset, PRESETS } from "./layout/layoutGrid.js";
+export { View, VIEW_LOCATIONS, EditorView, ModalView, PanelView, ViewSection, StatusView, Activity, activityFromDefinition } from "./models/ui/index.js";
+export { PERMISSIONS, HOST_PERMISSIONS, PERMISSION_NAMES, HOST_PERMISSION_NAMES, isKnownPermission, isKnownHostPermission, SUPPORTED_MANIFEST_VERSION, validateManifest, grantedPermissions } from "./models/plugin/index.js";
+export { satisfies, parseVersion, compareVersions } from "./models/plugin/semver.js";

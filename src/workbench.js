@@ -21,18 +21,21 @@ import { createPluginHost } from './plugins/pluginHost.js'
 //               creation (e.g. layout slices constructed earlier in setup) may
 //               register them at module scope first; that is detected and not
 //               repeated.
+//   engines     the host's contract versions, e.g. `{ sdk: SDK_VERSION }` from
+//               @workbench/plugin-sdk. A plugin manifest's `engines` block is
+//               checked against these before it loads (see plugins/pluginHost.js).
 //
 // Plugins: `workbench.plugins` is the framework plugin host — the app feeds it
 // { manifest, module } pairs however it delivers them (bundled import, fetched +
 // hash-verified artifacts, …).
 export class Workbench {
-  constructor({ editor, prefs, services = {}, log = () => {}, activities = [] } = {}) {
+  constructor({ editor, prefs, services = {}, log = () => {}, activities = [], engines = {} } = {}) {
     for (const def of activities) {
       if (!getActivity(def.id)) registerActivity(def)
     }
     this.host = useActivityHost({ editor, prefs, services, log, activities })
     this.facade = this.host.facade
-    this.plugins = createPluginHost({ host: this.host, log })
+    this.plugins = createPluginHost({ host: this.host, log, engines })
     this.log = log
     // Back-reference so anything holding the host can reach the instance.
     this.host.workbench = this

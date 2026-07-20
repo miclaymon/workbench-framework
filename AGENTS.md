@@ -39,7 +39,8 @@ in the UI package or the host app, injected through `services` or a parameter.
 | `layout/layoutGrid.js` | Pure recursive split-grid engine (leaf/branch tree, insert/remove/merge, presets). No DOM, no reactivity — callers own the reactive root. |
 | `host/activityHost.js` | `useActivityHost({ editor, prefs, services, log, activities })` — instantiates activity runtime APIs, brokers collaboration (peer query, `selection` capability, app-level pub/sub), and builds the frozen **`host.facade`** (commands, keybindings, menus, hooks, activities, modals, editor, preferences, icons, lightbox, peek, events, selection, peer, query, log). |
 | `plugins/pluginApi.js` | `createPluginApi(manifest, host)` — the frozen permission-scoped API handed to a plugin's `activate(api)`: UI model classes + `log` + exactly the granted facade slices, plus capability slices (`net`/`storage`/`clipboard`) and the `server` RPC slice (transport injected via `host.services.callPluginRpc`). |
-| `plugins/pluginHost.js` | `createPluginHost({ host, log })` — loads/unloads `{ manifest, module }` pairs: manifest validation, dependency ordering, lifecycle disposers, per-plugin fault isolation, reactive `states` map. **Delivery-agnostic**: fetching/verifying/importing artifacts is the host app's job. |
+| `plugins/pluginHost.js` | `createPluginHost({ host, log, engines })` — loads/unloads `{ manifest, module }` pairs: manifest validation, **contract checks** (`engines` vs the host's declared versions, `dependencies` vs the loaded plugin's version — both via `models/plugin/semver.js`), dependency ordering, lifecycle disposers, per-plugin fault isolation, reactive `states` map. **Delivery-agnostic**: fetching/verifying/importing artifacts is the host app's job. |
+| `models/plugin/semver.js` | Dependency-free `satisfies` / `compareVersions` / `parseVersion`. Supports exact, `^`, `~`, comparators, AND-sets and `\|\|` alternatives; an unparseable range returns `null` so callers can warn-and-skip rather than silently deny. Deliberately not a full semver implementation (no hyphen/x-ranges). |
 | `models/ui/` | `Activity`, `View`, `EditorView`, `ModalView`, `PanelView`, `ViewSection`, `StatusView` + `activityFromDefinition` — metadata + a component reference, renderer-neutral (no reactivity, no Vue). |
 | `models/plugin/` | Chrome-style `manifest.json` validation + the permission catalog (`PERMISSIONS`, `HOST_PERMISSIONS`, server permissions). Unknown permissions warn, never fail (forward compatible). |
 
@@ -52,7 +53,13 @@ in the UI package or the host app, injected through `services` or a parameter.
   tracking silently breaks (state renders once, never updates). Vue + Vite hosts
   set `resolve.dedupe: ['vue', '@vue/reactivity']`. Never run `npm install` inside
   THIS repo — a local `node_modules/@vue/reactivity` would shadow the host's copy
-  through the `file:` symlink and cause exactly that split-brain.
+  through the `file:` symlink and cause exactly that split-brain. (`npm run
+  build:types` runs `tsc` via `npx -p typescript`, so it installs nothing here.)
+- **Types are generated and committed.** `types/` is emitted from the JSDoc by
+  `npm run build:types` (config: `tsconfig.types.json`) and is the package's
+  published type surface (`exports["."].types`). Regenerate and commit it whenever
+  an exported signature changes — a stale `types/` misleads consumers silently.
+  Improve the JSDoc rather than hand-editing `types/`.
 - The standalone `watch` re-exported here (Vue 3.5+) **flushes synchronously** on
   trigger — there is no component scheduler, unlike runtime-core's `flush: 'pre'`
   batching. Keep watch callbacks idempotent and cheap; don't assume coalescing.
