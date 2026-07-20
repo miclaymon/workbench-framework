@@ -8,9 +8,9 @@ export function listIconThemes(): {
 export function resolveIcon(ctx: any): any;
 export function useIconRegistry(): {
     resolveIcon: typeof resolveIcon;
-    isIconThemeAvailable: any;
-    activeIconThemeId: any;
+    isIconThemeAvailable: import("@vue/reactivity").ComputedRef<boolean>;
+    activeIconThemeId: Readonly<import("@vue/reactivity").Ref<any, any>>;
     listIconThemes: typeof listIconThemes;
 };
-export const activeIconThemeId: any;
-export const isIconThemeAvailable: any;
+export const activeIconThemeId: Readonly<import("@vue/reactivity").Ref<any, any>>;
+export const isIconThemeAvailable: import("@vue/reactivity").ComputedRef<boolean>;

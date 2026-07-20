@@ -6,9 +6,9 @@ export function createPluginHost({ host, log, engines }: {
     load: (manifest: any, module: any) => any;
     unload: (id: any) => void;
     loadAllAsync: (lazyEntries: any) => Promise<void>;
-    isLoaded: (id: any) => any;
+    isLoaded: (id: any) => boolean;
     stateOf: (id: any) => any;
-    states: any;
+    states: import("@vue/reactivity").Reactive<Map<any, any>>;
     failures: () => any[];
     get: (id: any) => any;
     list: () => any[];

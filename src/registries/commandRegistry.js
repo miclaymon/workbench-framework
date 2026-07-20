@@ -1,4 +1,4 @@
-import { reactive } from '../reactivity.js'
+import { reactive, toRaw } from '../reactivity.js'
 
 // ── Command registry ─────────────────────────────────────────────────────────
 //
@@ -32,8 +32,11 @@ export function createCommandRegistry({ getCtx, log = () => {} }) {
     if (commands.has(cmd.id)) log('commands', `overwriting "${cmd.id}"`)
     commands.set(cmd.id, cmd)
     // Disposer removes only this exact registration, so a later re-register of the
-    // same id isn't clobbered by an earlier disposer firing late.
-    return () => { if (commands.get(cmd.id) === cmd) commands.delete(cmd.id) }
+    // same id isn't clobbered by an earlier disposer firing late. Compare against
+    // toRaw(): a reactive Map's get() returns a fresh proxy wrapping the stored
+    // value, never the raw object, so an identity check without it never matches
+    // and the disposer silently does nothing.
+    return () => { if (toRaw(commands.get(cmd.id)) === cmd) commands.delete(cmd.id) }
   }
 
   function get(id) { return commands.get(id) ?? null }

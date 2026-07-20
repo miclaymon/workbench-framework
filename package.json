@@ -16,7 +16,9 @@
     "types"
   ],
   "scripts": {
-    "build:types": "npx -y -p typescript@5 tsc -p tsconfig.types.json"
+    "build:types": "npx -y -p typescript@5 tsc -p tsconfig.types.json",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "peerDependencies": {
     "@vue/reactivity": "^3.5.0"
@@ -26,5 +28,8 @@
     "framework",
     "plugin-system"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "vitest": "^4.1.10"
+  }
 }

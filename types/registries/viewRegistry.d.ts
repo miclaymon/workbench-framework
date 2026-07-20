@@ -34,6 +34,6 @@ export function bubbledSectionActions(viewId: any, sections: any): any[];
 export function viewDataId(viewId: any): string;
 export function sectionDataId(sectionId: any, homeViewId: any): string;
 export function useViewRegistry(): {
-    registry: any;
+    registry: {};
     getViewEntry: typeof getViewEntry;
 };

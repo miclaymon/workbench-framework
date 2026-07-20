@@ -1,5 +1,5 @@
 {
-  "//": "Declaration-only build: emits types/ from the JSDoc in src/. Run via `npm run build:types`, which uses npx so this package never grows a node_modules (see AGENTS.md) — an install here would plant a second vue/@vue/reactivity through the file: symlink.",
+  "//": "Declaration-only build: emits types/ from the JSDoc in src/. Run via `npm run build:types`, which uses npx so this package never grows a node_modules (see AGENTS.md). `paths` resolves the @vue/reactivity peer to the sibling app's installed copy purely so reactive exports emit real types (Ref/ShallowRef) instead of `any` — nothing is installed or bundled from there.",
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
@@ -10,7 +10,15 @@
     "emitDeclarationOnly": true,
     "declarationDir": "types",
     "skipLibCheck": true,
-    "strict": false
+    "strict": false,
+    "baseUrl": ".",
+    "paths": {
+      "@vue/reactivity": [
+        "../files-workbench-app/client/node_modules/@vue/reactivity"
+      ]
+    }
   },
-  "include": ["src/**/*.js"]
+  "include": [
+    "src/**/*.js"
+  ]
 }

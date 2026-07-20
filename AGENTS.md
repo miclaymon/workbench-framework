@@ -51,10 +51,31 @@ in the UI package or the host app, injected through `services` or a parameter.
 - **Single-instance requirement**: the consuming app must resolve
   `@vue/reactivity` to the same module instance its renderer uses, or dependency
   tracking silently breaks (state renders once, never updates). Vue + Vite hosts
-  set `resolve.dedupe: ['vue', '@vue/reactivity']`. Never run `npm install` inside
-  THIS repo — a local `node_modules/@vue/reactivity` would shadow the host's copy
-  through the `file:` symlink and cause exactly that split-brain. (`npm run
-  build:types` runs `tsc` via `npx -p typescript`, so it installs nothing here.)
+  set `resolve.dedupe: ['vue', '@vue/reactivity']`. A local
+  `node_modules/@vue/reactivity` in THIS repo would shadow the host's copy
+  through the `file:` symlink and cause exactly that split-brain — a second,
+  unrelated `@vue/reactivity` instance that the app's Vue components never see
+  writes to. (`npm run build:types` runs `tsc` via `npx -p typescript`, so it
+  installs nothing here.)
+- **`npm install` here is allowed for devDependencies (test tooling), but
+  `@vue/reactivity`/`vue` must never land in this package's `node_modules`.**
+  `.npmrc` sets `omit=peer`, so a plain `npm install` does NOT auto-install the
+  `@vue/reactivity` peerDependency (npm 7+'s default peer auto-install is what
+  would otherwise plant the shadowing copy described above) — verify this
+  still holds after any `package.json` change: `ls node_modules` must show no
+  `vue` or `@vue` directory. `vitest.config.js` aliases the bare specifier
+  `@vue/reactivity` straight to the sibling app's installed copy
+  (`../files-workbench-app/client/node_modules/@vue/reactivity/dist/reactivity.esm-bundler.js`)
+  so tests exercise a real, working reactive store instead of needing a local
+  install. This means the test run depends on that sibling checkout existing
+  with its dependencies installed — acceptable for a repo that is explicitly
+  developed alongside its host app, and there is no other supported way to get
+  a real `@vue/reactivity` here without either installing it locally (forbidden
+  above) or vendoring/mocking it (would test against something other than
+  Vue's actual reactivity semantics). After touching `package.json` or
+  `.npmrc`, re-run the verification in "Verifying changes" below — it is the
+  only thing standing between "safe" and "silently reintroduces the
+  split-brain".
 - **Types are generated and committed.** `types/` is emitted from the JSDoc by
   `npm run build:types` (config: `tsconfig.types.json`) and is the package's
   published type surface (`exports["."].types`). Regenerate and commit it whenever
@@ -93,7 +114,29 @@ The framework carries no app specifics. A host app provides:
 
 ## Verifying changes
 
-This package has no test suite yet — it is verified through the consuming app:
+Run the test suite (`test/`, mirroring `src/`, covers the framework's pure logic
+and stores — semver, the plugin host's contract checks/lifecycle/fault
+isolation, the command/keybinding/hook/view registries, the layout-grid engine,
+manifest validation):
+
+```bash
+npm test            # vitest run
+npm run test:watch  # vitest, watch mode
+```
+
+Whenever `package.json` or `.npmrc` changes, re-verify the no-shadowing
+invariant from "The reactivity rules" above:
+
+```bash
+ls node_modules                                        # must show no vue/@vue
+cd ../files-workbench-app/client && npx vite build      # must still succeed
+node -e "console.log(require.resolve('@vue/reactivity'))"  # must resolve to
+                                                             # THIS app's own
+                                                             # node_modules, not
+                                                             # workbench-framework's
+```
+
+Tests aside, this package is also verified through the consuming app:
 
 ```bash
 cd ../files-workbench-app          # the app repo (branch refactor/multi-package)

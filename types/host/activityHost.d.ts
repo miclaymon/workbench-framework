@@ -8,9 +8,9 @@ export function useActivityHost({ editor, prefs, services, log, activities }: {
     activeTab: any;
     activeGroupId: any;
     editorRoot: any;
-    activeActivityId: any;
+    activeActivityId: import("@vue/reactivity").ComputedRef<any>;
     prefs: any;
-    selection: any;
+    selection: import("@vue/reactivity").ComputedRef<any>;
     api: (id: any) => any;
     requireApi: (id: any) => any;
     activities: () => any[];

@@ -10,9 +10,9 @@ export class Workbench {
         activeTab: any;
         activeGroupId: any;
         editorRoot: any;
-        activeActivityId: any;
+        activeActivityId: import("@vue/reactivity").ComputedRef<any>;
         prefs: any;
-        selection: any;
+        selection: import("@vue/reactivity").ComputedRef<any>;
         api: (id: any) => any;
         requireApi: (id: any) => any;
         activities: () => any[];
@@ -27,9 +27,9 @@ export class Workbench {
         load: (manifest: any, module: any) => any;
         unload: (id: any) => void;
         loadAllAsync: (lazyEntries: any) => Promise<void>;
-        isLoaded: (id: any) => any;
+        isLoaded: (id: any) => boolean;
         stateOf: (id: any) => any;
-        states: any;
+        states: import("@vue/reactivity").Reactive<Map<any, any>>;
         failures: () => any[];
         get: (id: any) => any;
         list: () => any[];
